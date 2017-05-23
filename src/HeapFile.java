@@ -27,6 +27,7 @@ public class HeapFile {
                 if (index == 0) {
                     if (count != 0) {
                         page.writeToFile(dir);
+                        System.out.println(count / size);
                     }
                     page = new HeapPage(count / size);
                 }

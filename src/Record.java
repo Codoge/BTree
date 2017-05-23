@@ -13,7 +13,7 @@ public class Record {
     private char[] Day = new char[10];
     private int Time;
     private int Sensor_ID;
-    private char[] Sensor_Name = new char[35];
+    private char[] Sensor_Name = new char[50];
     private int Hourly_Counts;
 
     public Record() {
@@ -199,7 +199,7 @@ public class Record {
     }
 
     public static int bytes() {
-        return 6 * Integer.BYTES + (20 + 10 + 10 + 35) * Character.BYTES;
+        return 6 * Integer.BYTES + (20 + 10 + 10 + 50) * Character.BYTES;
     }
 
     public static void main(String[] args) {
