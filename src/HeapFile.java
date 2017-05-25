@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.ArrayList;
 
 /**
  * HeapFile is an implementation of a DbFile that stores a collection of tuples
@@ -12,24 +11,22 @@ import java.util.ArrayList;
  * @author Sam Madden
  */
 public class HeapFile {
-    private String dir = "disc";
+    private String dir = "disc/page";
 
     public void generateHeapFile(String path) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));//换成你的文件名
             reader.readLine();//第一行信息，为标题信息，不用，如果需要，注释掉
             String line;
-            int count = 0;
+            long count = 1;
             int size = HeapPage.size / Record.bytes();
-            HeapPage page = null;
+            HeapPage page = new HeapPage((int)(count / size));
             while((line = reader.readLine())!= null){
-                int index = count % size;
+                int index = (int) count % size;
                 if (index == 0) {
-                    if (count != 0) {
-                        page.writeToFile(dir);
-                        System.out.println(count / size);
-                    }
-                    page = new HeapPage(count / size);
+                    page.writeToFile(dir);
+                    System.out.println("write page No." + count / size);
+                    page = new HeapPage((int)(count / size));
                 }
 //                System.out.println(line);
                 String item[] = line.split(",");//CSV格式文件为逗号分隔符文件，这里根据逗号切分
@@ -55,6 +52,14 @@ class HeapPage {
     public HeapPage(int pageID) {
         this.pageID = pageID;
         records = new Record[size/Record.bytes()];
+    }
+
+    public Record[] getRecords() {
+        return records;
+    }
+
+    public int getPageID() {
+        return pageID;
     }
 
     public void writeToFile(String dir) {
@@ -114,7 +119,7 @@ class HeapPage {
         File file = new File(path);
         InputStream in = null;
         try {
-            System.out.println("以字节为单位读取文件内容，一次读多个字节：");
+            System.out.println("read page file: " + path);
             in = new FileInputStream(file);
             for (int i = 0; i < page.records.length; i++) {
                 // 读入多个字节到字节数组中，byteread为一次读入的字节数
@@ -158,7 +163,7 @@ class HeapPage {
             page.records[i] = new Record(i, "2011-08-25", 2009+i,"March", 1, "Monday", 4, 9527, "LuoPing", 103);
         }
         page.writeToFile("disc");
-        HeapPage newPage = HeapPage.readFromFile("disc/1.page");
+        HeapPage newPage = HeapPage.readFromFile("disc/page/1.page");
         for (int i = 0; i < page.records.length; i++) {
             System.out.println(newPage.records[i]);
         }
