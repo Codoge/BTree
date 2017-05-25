@@ -2,3 +2,4 @@ disc/*
 out/*
 data/*
 .DS_Store
+.idea/*
