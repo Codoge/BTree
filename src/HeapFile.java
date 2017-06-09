@@ -11,7 +11,7 @@ import java.io.*;
  * @author Sam Madden
  */
 public class HeapFile {
-    private String dir = "disc/page";
+    public static String PAGE_PATH = "disc/page";
 
     public void generateHeapFile(String path) {
         try {
@@ -25,8 +25,8 @@ public class HeapFile {
                 int index = (int) count % size;
                 if (index == 0) {
                     if (count != 0) {
-                        page.writeToFile(dir, size);
-                        System.out.println("write page No." + count / size);
+                        page.writeToFile(PAGE_PATH, size);
+                        System.out.println("write page No." + (count / size - 1));
                     }
                     page = new HeapPage((int)(count / size));
                 }
@@ -37,12 +37,20 @@ public class HeapFile {
             }
             int remainder = (int)((count-1) % size);
             if (remainder != 0) {
-                page.writeToFile(dir, remainder);
+                page.writeToFile(PAGE_PATH, remainder);
                 System.out.println("write page No." + count / size);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Record findByID(int recordID) {
+        int size = HeapPage.size / Record.bytes();
+        int pageNum = (recordID) / size;
+        int recordNum = (recordID) % size;
+        HeapPage page = HeapPage.readFromFile(PAGE_PATH + "/" + pageNum + ".page");
+        return page.getRecords()[recordNum];
     }
 
     public static void main(String[] args) {
@@ -53,7 +61,7 @@ public class HeapFile {
 
 class HeapPage {
     private int pageID;
-    public static final int size = 4096; // bytes
+    public static final int size = 8192; // bytes
     private Record[] records;
 
     public HeapPage(int pageID) {
@@ -164,13 +172,13 @@ class HeapPage {
     }
 
     public static void main(String[] args) {
-        System.out.println(Record.bytes());
+//        System.out.println(Record.bytes());
         HeapPage page = new HeapPage(1);
-        for (int i = 0; i < page.records.length; i++) {
-            page.records[i] = new Record(i, "2011-08-25", 2009+i,"March", 1, "Monday", 4, 9527, "LuoPing", 103);
-        }
-        page.writeToFile("disc", page.records.length);
-        HeapPage newPage = HeapPage.readFromFile("disc/page/1.page");
+//        for (int i = 0; i < page.records.length; i++) {
+//            page.records[i] = new Record(i, "2011-08-25", 2009+i,"March", 1, "Monday", 4, 9527, "LuoPing", 103);
+//        }
+//        page.writeToFile("disc", page.records.length);
+        HeapPage newPage = HeapPage.readFromFile("disc/page/33.page");
         for (int i = 0; i < page.records.length; i++) {
             System.out.println(newPage.records[i]);
         }

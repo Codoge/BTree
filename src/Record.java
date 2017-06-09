@@ -1,9 +1,5 @@
 import java.lang.reflect.Field;
-import java.util.Arrays;
 
-/**
- * Created by codoge on 2017/5/22.
- */
 public class Record {
     private int ID;
     private char[] Date_Time = new char[20];
@@ -131,14 +127,14 @@ public class Record {
     public String toString() {
         return "Record{" +
                 "ID=" + ID +
-                ", Date_Time=" + Arrays.toString(Date_Time) +
+                ", Date_Time=" + new String(Date_Time) +
                 ", Year=" + Year +
-                ", Month=" + Arrays.toString(Month) +
+                ", Month=" + new String(Month) +
                 ", Mdate=" + Mdate +
-                ", Day=" + Arrays.toString(Day) +
+                ", Day=" + new String(Day) +
                 ", Time=" + Time +
                 ", Sensor_ID=" + Sensor_ID +
-                ", Sensor_Name=" + Arrays.toString(Sensor_Name) +
+                ", Sensor_Name=" + new String(Sensor_Name) +
                 ", Hourly_Counts=" + Hourly_Counts +
                 '}';
     }

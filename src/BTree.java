@@ -5,8 +5,9 @@ import java.util.List;
 
 public class BTree implements Serializable{
     // (2*M + 3) * Integer.BYTES is a DNode stored size
-    private static int M = (HeapPage.size - 100) / Integer.BYTES / 2;    // max children per B-tree node = M-1
+//    private static int M = (HeapPage.size - 100) / Integer.BYTES / 2;    // max children per B-tree node = M-1
 
+    private static int M = 300;
     private Node root;             // root of the B-tree
     private int HT;                // height of the B-tree
     private int N;                 // number of key-value pairs in the B-tree
@@ -113,6 +114,8 @@ public class BTree implements Serializable{
             if (h.children[j-1] == null) {
                 Node node = new Node(1, h);
                 node.data[1] = new Entry(key, (List<Integer>) value);
+                h.children[j-1] = node;
+                N++;
             } else {
                 insert(h.children[j-1], key, value, height-1);
             }
@@ -124,7 +127,7 @@ public class BTree implements Serializable{
         if (h == null)
             return;
         if (h.m > MAX_KEYS) { // need split
-            int mid = h.m / 2;
+            int mid = (h.m + 1) / 2;
             Node right = new Node(h.m - mid, h.parent);
             h.m = mid - 1;
             right.children[0] = h.children[mid];
@@ -179,7 +182,7 @@ public class BTree implements Serializable{
         else {
             for (int j = 1; j <= h.m; j++) {
                 s += toString(h.children[j-1], ht-1, indent + "     ");
-                s += indent + "(" + data[j].key + ")\n";
+                s += indent + "(" + data[j].key + " " + data[j].value + ")\n";
             }
             s+= toString(h.children[h.m], ht-1, indent + "     ");
         }
@@ -199,7 +202,7 @@ public class BTree implements Serializable{
     public int storeBTree(Node node, String dir) throws Exception {
         if (node == null)
             return -1;
-        BTreeStore.DNode dNode = store.new DNode(node.m);
+        BTreeStore.DNode dNode = new BTreeStore.DNode(node.m);
         dNode.children[0] = storeBTree(node.children[0], dir);
         for (int i = 1; i <= node.m; i++) {
             dNode.children[i] = storeBTree(node.children[i], dir);
@@ -245,7 +248,7 @@ public class BTree implements Serializable{
     }
 
 
-    class BTreeStore implements Serializable {
+    static class BTreeStore implements Serializable {
 
         private HashMap<Integer, List<Integer>> table = new HashMap<>();
         private int rootIndex;
@@ -255,7 +258,7 @@ public class BTree implements Serializable{
         private String dir;
 
         // helper B-tree node data type
-        class DNode implements Serializable {
+        static class DNode implements Serializable {
             private int m;                               // number of children
             private int[] key = new int[M+1];       // 0, M position not used
             private int[] children = new int[M+1];     // the array of children
@@ -312,6 +315,8 @@ public class BTree implements Serializable{
 
         private DNode getByIndex(int index) {
             DNode node = null;
+            if (index == -1)
+                return node;
             try {
                 File file = new File(dir + "/" + index + ".index");
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
@@ -335,8 +340,9 @@ public class BTree implements Serializable{
                 ClassNotFoundException {
             ois.defaultReadObject();
             table = (HashMap<Integer, List<Integer>>) ois.readObject();
+            rootIndex = -1;
             rootIndex = ois.readInt();
-            if (rootIndex != 0)
+            if (rootIndex != -1)
                 root = getByIndex(rootIndex);
             else
                 root = null;
@@ -352,6 +358,15 @@ public class BTree implements Serializable{
     public static void main(String[] args) {
         BTree st = new BTree();
 //        System.out.println(st);
+//        Random random = new Random();
+//        for (int j = 1; j <= 50; j++) {
+//            for (int i = 1; i <= 100; i++) {
+//                st.put(i, random.nextInt(300));
+//            }
+//        }
+
+
+
 
         st.put(3, 136);
         st.put(4, 127);
@@ -372,24 +387,25 @@ public class BTree implements Serializable{
         st.put(2,        65);
 
 
-        System.out.println(" 1:  " + st.get(1));
-        System.out.println(" 3:  " + st.get(3));
-        System.out.println(" 5:  " + st.get(5));
-        System.out.println(" 8:  " + st.get(8));
-        System.out.println("12:  " + st.get(12));
-        System.out.println("11:  " + st.get(11));
-        System.out.println();
+//        System.out.println(" 1:  " + st.get(1));
+//        System.out.println(" 3:  " + st.get(3));
+//        System.out.println(" 5:  " + st.get(5));
+//        System.out.println(" 8:  " + st.get(8));
+//        System.out.println("12:  " + st.get(12));
+//        System.out.println("11:  " + st.get(11));
+//        System.out.println();
 
         System.out.println("size:    " + st.size());
         System.out.println("height:  " + st.height());
         System.out.println(st);
         System.out.println();
 
-        st.store("disc/index");
-        BTreeStore bst = st.getStoreTree("disc/index");
+        st.store("test/index");
+        BTreeStore bst = st.getStoreTree("test/index");
 
         System.out.println(" 8:  " + bst.get(8));
-        System.out.println(" 9:  " + bst.get(9));
+        System.out.println(" 6:  " + bst.get(6));
+        System.out.println(" 2:  " + bst.get(2));
     }
 }
 
